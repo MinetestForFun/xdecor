@@ -163,3 +163,52 @@ xdecor.register("cauldron_soup", {
 	on_rightclick = cauldron.take_soup
 })
 
+minetest.register_abm({
+	nodenames = {"xdecor:cauldron_idle"},
+	interval = 15, chance = 1,
+	action = function(pos, node)
+		local below_node = {x=pos.x, y=pos.y-1, z=pos.z}
+		if minetest.get_node(below_node).name:find("fire") or minetest.get_node(below_node).name == "default:torch" then -- Use torch since skyblock doesn't have fire
+			minetest.set_node(pos, {name="xdecor:cauldron_boiling_water", param2=node.param2})
+		end
+	end
+})
+
+minetest.register_abm({
+	nodenames = {"xdecor:cauldron_boiling_water"},
+	interval = 5, chance = 1,
+	action = function(pos, node)
+		local objs = minetest.get_objects_inside_radius(pos, 0.5)
+		if not objs then return end
+
+		local ingredients = {}
+		for _, obj in pairs(objs) do
+			if obj and obj:get_luaentity() then
+				local itemstring = obj:get_luaentity().itemstring:match(":([%w_]+)")
+				if not next(ingredients) then
+					for _, rep in pairs(ingredients) do
+						if itemstring == rep then return end
+					end
+				end
+
+				for _, ing in pairs(ingredients_list) do
+					if itemstring and itemstring:find(ing) then
+						ingredients[#ingredients+1] = itemstring
+					end
+				end
+			end
+		end
+
+		if #ingredients >= 2 then
+			for _, obj in pairs(objs) do
+				if obj and obj:get_luaentity() then obj:remove() end
+			end
+			minetest.set_node(pos, {name="xdecor:cauldron_soup", param2=node.param2})
+		end
+
+		local node_under = {x=pos.x, y=pos.y-1, z=pos.z}
+		if not minetest.get_node(node_under).name:find("fire") then
+			minetest.set_node(pos, {name="xdecor:cauldron_idle", param2=node.param2})
+		end
+	end
+})
