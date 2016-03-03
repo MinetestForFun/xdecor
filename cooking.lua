@@ -206,8 +206,8 @@ minetest.register_abm({
 			minetest.set_node(pos, {name="xdecor:cauldron_soup", param2=node.param2})
 		end
 
-		local node_under = {x=pos.x, y=pos.y-1, z=pos.z}
-		if not (minetest.get_node(below_node).name:find("fire") or minetest.get_node(below_node).name == "default:torch") then -- Use torch since skyblock doesn't have fire
+		local node_under = minetest.get_node({x=pos.x, y=pos.y-1, z=pos.z}).name
+		if not (node_under:find("fire") or node_under:find("torch")) then -- Use torch since skyblock doesn't have fire
 			minetest.set_node(pos, {name="xdecor:cauldron_idle", param2=node.param2})
 		end
 	end
