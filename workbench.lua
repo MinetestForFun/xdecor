@@ -218,6 +218,7 @@ for _, d in pairs(workbench.defs) do
 for node in pairs(minetest.registered_nodes) do
 	local def = minetest.registered_nodes[node]
 	if workbench:nodes(def) and d[3] then
+		local light_source = def.light_source
 		local groups, tiles = {}, {}
 		groups.not_in_creative_inventory = 1
 
@@ -253,7 +254,8 @@ for node in pairs(minetest.registered_nodes) do
 			-- `unpack` has been changed to `table.unpack` in newest Lua versions.
 			node_box = xdecor.pixelbox(16, {unpack(d, 3)}),
 			sunlight_propagates = true,
-			on_place = minetest.rotate_node
+			on_place = minetest.rotate_node,
+			light_source = light_source or 0,
 		})
 	end
 	if node:match(":mese") then
